@@ -13,6 +13,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -270,7 +271,43 @@ func (c *Client) GetStorageStatus(vmr *VmRef, storageName string) (storageStatus
 	if data["data"] == nil {
 		return nil, fmt.Errorf("storage STATUS not readable")
 	}
+	if data["data"] == nil {
+		return nil, fmt.Errorf("storage STATUS not readable")
+	}
 	storageStatus = data["data"].(map[string]interface{})
+	return
+}
+
+func (c *Client) GetStorage(nodeName string) (storageStatus []interface{}, err error) {
+	var data map[string]interface{}
+	url := fmt.Sprintf("/nodes/%s/storage/", nodeName)
+	err = c.GetJsonRetryable(url, &data, 3)
+	if err != nil {
+		return nil, err
+	}
+	if data["data"] == nil {
+		return nil, fmt.Errorf("storage STATUS not readable")
+	}
+	if data["data"] == nil {
+		return nil, fmt.Errorf("storage STATUS not readable")
+	}
+	storageStatus = data["data"].([]interface{})
+	return
+}
+
+func (c *Client) GetStorageFull() (storageStatus []interface{}, err error) {
+	var data map[string]interface{}
+	url := fmt.Sprintf("/nodes")
+	err = c.GetJsonRetryable(url, &data, 3)
+	if err != nil {
+		return nil, err
+	}
+	if data["data"] == nil {
+		return nil, fmt.Errorf("storage STATUS not readable")
+	}
+	fmt.Println(reflect.TypeOf(data["data"]))
+	storageStatus = data["data"].([]interface{})
+	//storageStatus = data["data"].(map[string][]interface{})
 	return
 }
 

@@ -1,0 +1,8 @@
+{
+  "name": "rtmLr4J",
+  "memory": 2048,
+  "cores": 1,
+  "sockets": 1,
+  "kvm": false,
+  "iso": "local:iso/ubuntu-22.04.1-live-server-amd64.iso"
+}
