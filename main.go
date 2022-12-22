@@ -491,4 +491,50 @@ func resizeVMDisk(c *proxmox.Client, vmID int, disk string, moreSizeGB int) (exi
 	return c.ResizeQemuDisk(vmr, disk, moreSizeGB)
 }
 
+func getAllValidHosts(c *proxmox.Client) {
+	nodeList, err := getNodeList(c)
+	if err != nil {
+		fmt.Println(err)
+	}
+	list := nodeList["data"].([]interface{})
+	for _, node := range list {
+		node2 := node.(map[string]interface{})
+		percentage := node2["mem"].(float64) / node2["maxmem"].(float64) * 100 // todo: check before diveded by zero?
+		if node2["status"] == "online" && percentage < memoryThreshold {
+			percantage := node2["mem"].(float64) / node2["maxmem"].(float64) * 100
+			fmt.Printf("%s has is under the threshold: %d%%, it has memory percentage of: %f\n", node2["node"], memoryThreshold, percantage)
+		}
+	}
+	//fmt.Println(nodeList)
+}
+
+func getAllValidStorages(c *proxmox.Client) {
+	nodeList, err := getNodeList(c)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// information about all the storage
+	list := nodeList["data"].([]interface{})
+	for _, node := range list {
+		node2 := node.(map[string]interface{})
+		if node2["status"] != "online" {
+			continue
+		}
+		nodeName := node2["id"].(string)[5:]
+		storage, err := c.GetStorage(nodeName)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		for _, eachStorage := range storage {
+			//fmt.Println(eachStorage.(map[string]interface{}))
+			freeStorage := eachStorage.(map[string]interface{})["avail"].(float64) / 1000000000
+			if freeStorage > storageThreshold {
+				fmt.Printf("%s has %f storage available in storage: %s, less than the threshold: %d\n", nodeName, freeStorage, eachStorage.(map[string]interface{})["storage"], storageThreshold)
+			}
+		}
+	}
+
+}
+
 // cluster/status
