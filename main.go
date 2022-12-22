@@ -89,6 +89,18 @@ func main() {
 		return
 	}
 
+	hosts, err := getAllValidHosts(c)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	pickHost, err := chooseValidStorageOrHost(c, hosts)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("the chosen host is: %s", pickHost)
+
 	//// get vm list
 	//list, err := getVMList(c)
 	//if err != nil {
@@ -109,8 +121,8 @@ func main() {
 	//} else {
 	//	fmt.Printf("The number is: %d", number)
 	//}
-	hosts := []string{"host1", "host2", "host3"}
-	fmt.Println(chooseValidHost(c, hosts))
+	//hosts := []string{"host1", "host2", "host3"}
+	//fmt.Println(chooseValidStorageOrHost(c, hosts))
 
 	// todo: add this! (the hosts)
 	// get the information about the hosts
@@ -501,28 +513,32 @@ func resizeVMDisk(c *proxmox.Client, vmID int, disk string, moreSizeGB int) (exi
 	return c.ResizeQemuDisk(vmr, disk, moreSizeGB)
 }
 
-func getAllValidHosts(c *proxmox.Client) {
+func getAllValidHosts(c *proxmox.Client) ([]interface{}, error) {
 	nodeList, err := getNodeList(c)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
+	var validHosts []interface{}
 	list := nodeList["data"].([]interface{})
 	for _, node := range list {
 		node2 := node.(map[string]interface{})
-		percentage := node2["mem"].(float64) / node2["maxmem"].(float64) * 100 // todo: check before diveded by zero?
-		if node2["status"] == "online" && percentage < memoryThreshold {
-			percantage := node2["mem"].(float64) / node2["maxmem"].(float64) * 100
-			fmt.Printf("%s has is under the threshold: %d%%, it has memory percentage of: %f\n", node2["node"], memoryThreshold, percantage)
+		if node2["status"] == "online" && node2["mem"].(float64)/node2["maxmem"].(float64)*100 < memoryThreshold {
+			validHosts = append(validHosts, node2["node"])
+			//percantage := node2["mem"].(float64) / node2["maxmem"].(float64) * 100
+			//fmt.Printf("%s has is under the threshold: %d%%, it has memory percentage of: %f\n", node2["node"], memoryThreshold, percantage)
 		}
 	}
+	//fmt.Println(validHosts)
+	return validHosts, nil
 	//fmt.Println(nodeList)
 }
 
-func getAllValidStorages(c *proxmox.Client) {
+func getAllValidStorages(c *proxmox.Client) ([]interface{}, error) {
 	nodeList, err := getNodeList(c)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
+	var validStorages []interface{}
 	// information about all the storage
 	list := nodeList["data"].([]interface{})
 	for _, node := range list {
@@ -534,17 +550,18 @@ func getAllValidStorages(c *proxmox.Client) {
 		storage, err := c.GetStorage(nodeName)
 		if err != nil {
 			fmt.Println(err)
-			return
+			return nil, err
 		}
 		for _, eachStorage := range storage {
 			//fmt.Println(eachStorage.(map[string]interface{}))
 			freeStorage := eachStorage.(map[string]interface{})["avail"].(float64) / 1000000000
 			if freeStorage > storageThreshold {
+				validStorages = append(validStorages, storage)
 				fmt.Printf("%s has %f storage available in storage: %s, less than the threshold: %d\n", nodeName, freeStorage, eachStorage.(map[string]interface{})["storage"], storageThreshold)
 			}
 		}
 	}
-
+	return validStorages, nil
 }
 
 func generateRandomVMID(c *proxmox.Client) (int, error) {
@@ -569,14 +586,17 @@ func generateRandomVMID(c *proxmox.Client) (int, error) {
 	return 0, fmt.Errorf("no valid VMID number was found")
 }
 
-func chooseValidHost(c *proxmox.Client, hosts []string) string {
+func chooseValidStorageOrHost(c *proxmox.Client, hosts []interface{}) (interface{}, error) {
+
+	if len(hosts) == 0 {
+		return nil, fmt.Errorf("the array is empty")
+	}
 	// Seed the random number generator with the current time
 	// in nanoseconds. This ensures that the random numbers
 	// generated will be different each time the program is run.
 	rand.Seed(time.Now().UnixNano())
-
 	i := rand.Intn(len(hosts))
-	return hosts[i]
+	return hosts[i], nil
 }
 
 // cluster/status
