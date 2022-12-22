@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"time"
 
 	_ "github.com/Telmate/proxmox-api-go/cli/command/commands"
@@ -102,12 +103,21 @@ func main() {
 	//}
 	//fmt.Println(storageList)
 
+	//number, err := generateRandomVMID(c)
+	//if err != nil {
+	//	fmt.Println(err)
+	//} else {
+	//	fmt.Printf("The number is: %d", number)
+	//}
+	hosts := []string{"host1", "host2", "host3"}
+	fmt.Println(chooseValidHost(c, hosts))
+
 	// todo: add this! (the hosts)
 	// get the information about the hosts
-	nodeList, err := getNodeList(c)
-	if err != nil {
-		fmt.Println(err)
-	}
+	//nodeList, err := getNodeList(c)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
 	//list := nodeList["data"].([]interface{})
 	//for _, node := range list {
 	//	node2 := node.(map[string]interface{})
@@ -121,27 +131,27 @@ func main() {
 
 	// todo: add this! (the storages) - need to check the pools (right now just the 'local' and the 'local-lvm')
 
-	// information about all the storage
-	list := nodeList["data"].([]interface{})
-	for _, node := range list {
-		node2 := node.(map[string]interface{})
-		if node2["status"] != "online" {
-			continue
-		}
-		nodeName := node2["id"].(string)[5:]
-		storage, err := c.GetStorage(nodeName)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		for _, eachStorage := range storage {
-			//fmt.Println(eachStorage.(map[string]interface{}))
-			freeStorage := eachStorage.(map[string]interface{})["avail"].(float64) / 1000000000
-			if freeStorage > storageThreshold {
-				fmt.Printf("%s has %f storage available in storage: %s, less than the threshold: %d\n", nodeName, freeStorage, eachStorage.(map[string]interface{})["storage"], storageThreshold)
-			}
-		}
-	}
+	//// information about all the storage
+	//list := nodeList["data"].([]interface{})
+	//for _, node := range list {
+	//	node2 := node.(map[string]interface{})
+	//	if node2["status"] != "online" {
+	//		continue
+	//	}
+	//	nodeName := node2["id"].(string)[5:]
+	//	storage, err := c.GetStorage(nodeName)
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		return
+	//	}
+	//	for _, eachStorage := range storage {
+	//		//fmt.Println(eachStorage.(map[string]interface{}))
+	//		freeStorage := eachStorage.(map[string]interface{})["avail"].(float64) / 1000000000
+	//		if freeStorage > storageThreshold {
+	//			fmt.Printf("%s has %f storage available in storage: %s, less than the threshold: %d\n", nodeName, freeStorage, eachStorage.(map[string]interface{})["storage"], storageThreshold)
+	//		}
+	//	}
+	//}
 
 	/////
 
@@ -535,6 +545,38 @@ func getAllValidStorages(c *proxmox.Client) {
 		}
 	}
 
+}
+
+func generateRandomVMID(c *proxmox.Client) (int, error) {
+	for i := 0; i < 5; i++ {
+		// Seed the random number generator with the current time
+		// in nanoseconds. This ensures that the random numbers
+		// generated will be different each time the program is run.
+		rand.Seed(time.Now().UnixNano())
+
+		// Generate a random integer between 200 and 10,000 ([,))
+		min := 200
+		max := 10000
+		randomNumber := rand.Intn(max-min+1) + min
+		ifExists, err := c.VMIdExists(randomNumber)
+		if err != nil {
+			return -1, err
+		}
+		if !ifExists {
+			return randomNumber, nil
+		}
+	}
+	return 0, fmt.Errorf("no valid VMID number was found")
+}
+
+func chooseValidHost(c *proxmox.Client, hosts []string) string {
+	// Seed the random number generator with the current time
+	// in nanoseconds. This ensures that the random numbers
+	// generated will be different each time the program is run.
+	rand.Seed(time.Now().UnixNano())
+
+	i := rand.Intn(len(hosts))
+	return hosts[i]
 }
 
 // cluster/status
