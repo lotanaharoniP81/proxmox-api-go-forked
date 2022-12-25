@@ -37,7 +37,7 @@ const cloneVMconst = `{
 }`
 
 const memoryThreshold = 80
-const storageThreshold = 10
+const storageThreshold = 30
 
 const cloneVMCloudInit = `{
   "name": "cloudinit.test.com",
@@ -99,7 +99,20 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Printf("the chosen host is: %s", pickHost)
+	fmt.Printf("the chosen host is: %s\n", pickHost)
+
+	pools, err := getAllValidStorages(c)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	pickPool, err := chooseValidStorageOrHost(c, pools)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("the chosen pool is: %s\n", pickPool)
 
 	//// get vm list
 	//list, err := getVMList(c)
@@ -549,15 +562,20 @@ func getAllValidStorages(c *proxmox.Client) ([]interface{}, error) {
 		nodeName := node2["id"].(string)[5:]
 		storage, err := c.GetStorage(nodeName)
 		if err != nil {
-			fmt.Println(err)
 			return nil, err
 		}
+
 		for _, eachStorage := range storage {
+			storageContent, err := c.GetStorageConfig2(nodeName, eachStorage.(map[string]interface{})["storage"].(string))
+			if err != nil {
+				return nil, err
+			}
+			fmt.Println(storageContent)
 			//fmt.Println(eachStorage.(map[string]interface{}))
 			freeStorage := eachStorage.(map[string]interface{})["avail"].(float64) / 1000000000
 			if freeStorage > storageThreshold {
-				validStorages = append(validStorages, storage)
-				fmt.Printf("%s has %f storage available in storage: %s, less than the threshold: %d\n", nodeName, freeStorage, eachStorage.(map[string]interface{})["storage"], storageThreshold)
+				validStorages = append(validStorages, eachStorage.(map[string]interface{})["storage"])
+				//fmt.Printf("%s has %f storage available in storage: %s, less than the threshold: %d\n", nodeName, freeStorage, eachStorage.(map[string]interface{})["storage"], storageThreshold)
 			}
 		}
 	}
@@ -573,7 +591,7 @@ func generateRandomVMID(c *proxmox.Client) (int, error) {
 
 		// Generate a random integer between 200 and 10,000 ([,))
 		min := 200
-		max := 10000
+		max := 999999999
 		randomNumber := rand.Intn(max-min+1) + min
 		ifExists, err := c.VMIdExists(randomNumber)
 		if err != nil {
