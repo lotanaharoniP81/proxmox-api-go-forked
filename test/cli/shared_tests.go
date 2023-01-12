@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lotanaharoniP81/proxmox-api-go/cli"
-	_ "github.com/lotanaharoniP81/proxmox-api-go/cli/command/commands"
+	"github.com/lotanaharoniP81/proxmox-api-go-forked/cli"
+	_ "github.com/lotanaharoniP81/proxmox-api-go-forked/cli/command/commands"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

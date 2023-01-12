@@ -1,7 +1,7 @@
 package id
 
 import (
-	"github.com/lotanaharoniP81/proxmox-api-go/cli/command/get"
+	"github.com/lotanaharoniP81/proxmox-api-go-forked/cli/command/get"
 	"github.com/spf13/cobra"
 )
 

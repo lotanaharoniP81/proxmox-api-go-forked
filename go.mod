@@ -1,4 +1,4 @@
-module github.com/lotanaharoniP81/proxmox-api-go
+module github.com/lotanaharoniP81/proxmox-api-go-forked
 
 go 1.18
 

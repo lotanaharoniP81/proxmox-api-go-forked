@@ -3,7 +3,7 @@ package id
 import (
 	"fmt"
 
-	"github.com/lotanaharoniP81/proxmox-api-go/cli"
+	"github.com/lotanaharoniP81/proxmox-api-go-forked/cli"
 	"github.com/spf13/cobra"
 )
 

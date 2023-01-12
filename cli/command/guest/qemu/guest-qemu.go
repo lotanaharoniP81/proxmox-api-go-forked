@@ -1,7 +1,7 @@
 package qemu
 
 import (
-	"github.com/lotanaharoniP81/proxmox-api-go/cli/command/guest"
+	"github.com/lotanaharoniP81/proxmox-api-go-forked/cli/command/guest"
 	"github.com/spf13/cobra"
 )
 

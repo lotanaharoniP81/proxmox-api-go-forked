@@ -1,8 +1,8 @@
 package cli_user_test
 
 import (
-	_ "github.com/lotanaharoniP81/proxmox-api-go/cli/command/commands"
-	cliTest "github.com/lotanaharoniP81/proxmox-api-go/test/cli"
+	_ "github.com/lotanaharoniP81/proxmox-api-go-forked/cli/command/commands"
+	cliTest "github.com/lotanaharoniP81/proxmox-api-go-forked/test/cli"
 	"testing"
 )
 

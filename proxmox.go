@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/lotanaharoniP81/proxmox-api-go/proxmox"
+	"github.com/lotanaharoniP81/proxmox-api-go-forked/proxmox"
 	"os"
 )
 

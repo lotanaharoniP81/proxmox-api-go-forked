@@ -6,7 +6,7 @@ import (
 	"crypto/x509"
 	"flag"
 	"fmt"
-	"github.com/lotanaharoniP81/proxmox-api-go/proxmox"
+	"github.com/lotanaharoniP81/proxmox-api-go-forked/proxmox"
 	"log"
 	"os"
 	"strconv"

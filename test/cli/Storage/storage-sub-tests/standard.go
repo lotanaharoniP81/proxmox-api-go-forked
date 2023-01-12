@@ -3,9 +3,9 @@ package storagesubtests
 import (
 	"testing"
 
-	_ "github.com/lotanaharoniP81/proxmox-api-go/cli/command/commands"
-	"github.com/lotanaharoniP81/proxmox-api-go/proxmox"
-	cliTest "github.com/lotanaharoniP81/proxmox-api-go/test/cli"
+	_ "github.com/lotanaharoniP81/proxmox-api-go-forked/cli/command/commands"
+	"github.com/lotanaharoniP81/proxmox-api-go-forked/proxmox"
+	cliTest "github.com/lotanaharoniP81/proxmox-api-go-forked/test/cli"
 )
 
 func Cleanup(name string, t *testing.T) {

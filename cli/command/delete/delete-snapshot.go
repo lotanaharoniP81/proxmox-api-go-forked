@@ -1,8 +1,8 @@
 package delete
 
 import (
-	"github.com/lotanaharoniP81/proxmox-api-go/cli"
-	"github.com/lotanaharoniP81/proxmox-api-go/proxmox"
+	"github.com/lotanaharoniP81/proxmox-api-go-forked/cli"
+	"github.com/lotanaharoniP81/proxmox-api-go-forked/proxmox"
 	"github.com/spf13/cobra"
 )
 
