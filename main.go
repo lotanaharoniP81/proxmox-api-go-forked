@@ -7,8 +7,8 @@ import (
 	"math/rand"
 	"time"
 
-	_ "github.com/Telmate/proxmox-api-go/cli/command/commands"
-	"github.com/Telmate/proxmox-api-go/proxmox"
+	_ "github.com/lotanaharoniP81/proxmox-api-go/cli/command/commands"
+	"github.com/lotanaharoniP81/proxmox-api-go/proxmox"
 	"log"
 	"regexp"
 )
