@@ -1,7 +1,7 @@
 package main
 
 import (
-	"context"
+	//"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -75,44 +75,44 @@ const createQemuConfig = `{
 //const createQemuConfig = "{\n  \"name\": \"rtmLr4J\",\n  \"memory\": 2048,\n  \"cores\": 1,\n  \"sockets\": 1,\n  \"kvm\": false,\n  \"iso\": \"local:iso/ubuntu-22.04.1-live-server-amd64.iso\"\n}"
 
 func main() {
-	ca := []byte(caPem)
-	cert := []byte(certPem)
-	key := []byte(certKey)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*30)
-	defer cancel()
-
-	//_, err := SSHConnect(fmt.Sprintf("%s:%d", "64.226.130.1", 10080),"admin")
-
-	c, err := Connect(ctx, PmApiUrl, ca, cert, key)
-	if err != nil {
-		return
-	}
-
-	hosts, err := getAllValidHosts(c)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	pickHost, err := chooseValidStorageOrHost(c, hosts)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Printf("the chosen host is: %s\n", pickHost)
-
-	pools, err := getAllValidStorages(c)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	pickPool, err := chooseValidStorageOrHost(c, pools)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Printf("the chosen pool is: %s\n", pickPool)
+	//ca := []byte(caPem)
+	//cert := []byte(certPem)
+	//key := []byte(certKey)
+	//
+	//ctx, cancel := context.WithTimeout(context.Background(), time.Minute*30)
+	//defer cancel()
+	//
+	////_, err := SSHConnect(fmt.Sprintf("%s:%d", "64.226.130.1", 10080),"admin")
+	//
+	//c, err := Connect(ctx, PmApiUrl, ca, cert, key)
+	//if err != nil {
+	//	return
+	//}
+	//
+	//hosts, err := getAllValidHosts(c)
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return
+	//}
+	//pickHost, err := chooseValidStorageOrHost(c, hosts)
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return
+	//}
+	//fmt.Printf("the chosen host is: %s\n", pickHost)
+	//
+	//pools, err := getAllValidStorages(c)
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return
+	//}
+	//
+	//pickPool, err := chooseValidStorageOrHost(c, pools)
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return
+	//}
+	//fmt.Printf("the chosen pool is: %s\n", pickPool)
 
 	//// get vm list
 	//list, err := getVMList(c)
@@ -330,22 +330,23 @@ func main() {
 	//}
 	//fmt.Println(exisStatus)
 	//fmt.Println("Yes!")
+	return
 
 }
 
-func createQemu(c *proxmox.Client, vmID int) error {
-	//configTemp, err := GetConfig([]byte(createQemuConfig))
-	//if err != nil {
-	//	return err
-	//}
-	config, err := proxmox.NewConfigQemuFromJson([]byte(createQemuConfig))
-	if err != nil {
-		return err
-	}
-	vmr := proxmox.NewVmRef(vmID)
-	vmr.SetNode(host)
-	return config.CreateVm(vmr, c)
-}
+//func createQemu(c *proxmox.Client, vmID int) error {
+//	//configTemp, err := GetConfig([]byte(createQemuConfig))
+//	//if err != nil {
+//	//	return err
+//	//}
+//	config, err := proxmox.NewConfigQemuFromJson([]byte(createQemuConfig))
+//	if err != nil {
+//		return err
+//	}
+//	vmr := proxmox.NewVmRef(vmID)
+//	vmr.SetNode(host)
+//	return config.CreateVm(vmr, c)
+//}
 
 func failError(err error) {
 	if err != nil {
@@ -546,41 +547,41 @@ func getAllValidHosts(c *proxmox.Client) ([]interface{}, error) {
 	//fmt.Println(nodeList)
 }
 
-func getAllValidStorages(c *proxmox.Client) ([]interface{}, error) {
-	nodeList, err := getNodeList(c)
-	if err != nil {
-		return nil, err
-	}
-	var validStorages []interface{}
-	// information about all the storage
-	list := nodeList["data"].([]interface{})
-	for _, node := range list {
-		node2 := node.(map[string]interface{})
-		if node2["status"] != "online" {
-			continue
-		}
-		nodeName := node2["id"].(string)[5:]
-		storage, err := c.GetStorage(nodeName)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, eachStorage := range storage {
-			storageContent, err := c.GetStorageConfig2(nodeName, eachStorage.(map[string]interface{})["storage"].(string))
-			if err != nil {
-				return nil, err
-			}
-			fmt.Println(storageContent)
-			//fmt.Println(eachStorage.(map[string]interface{}))
-			freeStorage := eachStorage.(map[string]interface{})["avail"].(float64) / 1000000000
-			if freeStorage > storageThreshold {
-				validStorages = append(validStorages, eachStorage.(map[string]interface{})["storage"])
-				//fmt.Printf("%s has %f storage available in storage: %s, less than the threshold: %d\n", nodeName, freeStorage, eachStorage.(map[string]interface{})["storage"], storageThreshold)
-			}
-		}
-	}
-	return validStorages, nil
-}
+//func getAllValidStorages(c *proxmox.Client) ([]interface{}, error) {
+//	nodeList, err := getNodeList(c)
+//	if err != nil {
+//		return nil, err
+//	}
+//	var validStorages []interface{}
+//	// information about all the storage
+//	list := nodeList["data"].([]interface{})
+//	for _, node := range list {
+//		node2 := node.(map[string]interface{})
+//		if node2["status"] != "online" {
+//			continue
+//		}
+//		nodeName := node2["id"].(string)[5:]
+//		storage, err := c.GetStorage(nodeName)
+//		if err != nil {
+//			return nil, err
+//		}
+//
+//		for _, eachStorage := range storage {
+//			storageContent, err := c.GetStorageConfig2(nodeName, eachStorage.(map[string]interface{})["storage"].(string))
+//			if err != nil {
+//				return nil, err
+//			}
+//			fmt.Println(storageContent)
+//			//fmt.Println(eachStorage.(map[string]interface{}))
+//			freeStorage := eachStorage.(map[string]interface{})["avail"].(float64) / 1000000000
+//			if freeStorage > storageThreshold {
+//				validStorages = append(validStorages, eachStorage.(map[string]interface{})["storage"])
+//				//fmt.Printf("%s has %f storage available in storage: %s, less than the threshold: %d\n", nodeName, freeStorage, eachStorage.(map[string]interface{})["storage"], storageThreshold)
+//			}
+//		}
+//	}
+//	return validStorages, nil
+//}
 
 func generateRandomVMID(c *proxmox.Client) (int, error) {
 	for i := 0; i < 5; i++ {
